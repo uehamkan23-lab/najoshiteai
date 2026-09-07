@@ -1,0 +1,5 @@
+# 検索エンジンへの案内
+User-agent: *
+Allow: /
+
+Sitemap: https://najoshiteai.pages.dev/sitemap.xml

@@ -313,6 +313,17 @@
     var meta = document.querySelector('meta[name="description"]');
     if (meta && post.excerpt) meta.setAttribute("content", post.excerpt);
 
+    /*
+     * 検索と共有のための情報を、その記事のものに差し替える。
+     * canonical は記事ごとに違う URL を指す必要がある。
+     * これを怠ると、全記事が blog-post.html 一枚として扱われる。
+     */
+    var canon = document.querySelector('link[rel="canonical"]');
+    var here = location.origin + location.pathname + "?id=" + encodeURIComponent(post.id);
+    if (canon) canon.setAttribute("href", here);
+    var ogu = document.querySelector('meta[property="og:url"]');
+    if (ogu) ogu.setAttribute("content", here);
+
     // 共有したときの絵柄も、その記事の見出し画像にそろえる。
     // OGP のクローラは絶対 URL しか解決できないので、必ず絶対に直す。
     // new URL を通すと、相対でも "https://..." でも正しく扱える。
@@ -340,6 +351,45 @@
             : "") +
           "</figure>"
         : "";
+
+    /* 記事そのものの素性を、検索エンジンに読める形で置く */
+    (function () {
+      var ld = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: post.title,
+        datePublished: post.date,
+        dateModified: post.date,
+        inLanguage: "ja",
+        mainEntityOfPage: { "@type": "WebPage", "@id": here },
+        publisher: {
+          "@type": "Organization",
+          name: "NajoshiteAI",
+          logo: {
+            "@type": "ImageObject",
+            url: location.origin + "/assets/title-removebg-preview.png"
+          }
+        }
+      };
+      if (post.excerpt) ld.description = post.excerpt;
+      if (post.author) ld.author = { "@type": "Person", name: post.author };
+      if (post.cover && post.cover.src) {
+        try {
+          ld.image = new URL(post.cover.src, location.href).href;
+        } catch (e) {
+          /* 変な src のときは絵柄なしで出す */
+        }
+      }
+
+      var tag = document.getElementById("article-ld");
+      if (!tag) {
+        tag = document.createElement("script");
+        tag.type = "application/ld+json";
+        tag.id = "article-ld";
+        document.head.appendChild(tag);
+      }
+      tag.textContent = JSON.stringify(ld);
+    })();
 
     var pager =
       (older

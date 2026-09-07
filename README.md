@@ -28,6 +28,8 @@ site/
 │  └ posts.json          ★ ブログの記事はここに書く
 ├ assets/                画像
 ├ favicon.png
+├ robots.txt             検索エンジンへの案内
+├ sitemap.xml            ページの一覧（★記事を足したらここにも追記）
 ├ _headers               Cloudflare Pages への指示（配信はされません）
 ├ .gitattributes         改行コードの決めごと
 └ .gitignore             公開しないもの
@@ -306,6 +308,65 @@ push するたびに Cloudflare が気づいて、1〜2分で公開ページが�
 
 > 独自ドメイン（najoshiteai.com など）を取った場合も、Cloudflare Pages なら
 > 追加料金なしでつなげます。そのときは下の「公開URL（OGP）」の差し替えも忘れずに。
+
+---
+
+## 検索に出るようにする（SEO）
+
+### 仕込んであるもの
+
+| | 内容 |
+| --- | --- |
+| `robots.txt` | 「全部読んでいい」と伝え、sitemap の場所を教える |
+| `sitemap.xml` | 全ページの一覧。検索エンジンが漏れなく回れる |
+| canonical | 各ページの正式な URL。同じ内容が二重に登録されるのを防ぐ |
+| JSON-LD | ページの素性を機械が読める形で記述（下表） |
+| OGP / Twitter Card | SNS に貼ったときのタイトル・説明・画像 |
+
+JSON-LD の中身はページごとに変えてあります。
+
+| ページ | 種類 |
+| --- | --- |
+| ホーム | WebSite ＋ SoftwareApplication（アプリとして認識される） |
+| メンバー紹介 | Person（人物として認識される） |
+| ブログ一覧 | Blog |
+| 記事 | BlogPosting（日付・著者・画像つき。JS が記事ごとに生成） |
+| 下層ページ | BreadcrumbList（検索結果に「ホーム > ブログ」と出る） |
+
+### 公開したら、最初にやること
+
+**Google Search Console に登録します。**これをしないと、いつまでも
+検索に出ないことがあります。
+
+1. <https://search.google.com/search-console> を開く
+2. 「URL プレフィックス」に `https://najoshiteai.pages.dev` を入力
+3. 所有権の確認 →「HTML タグ」を選び、表示された
+   `<meta name="google-site-verification" content="..." />` を
+   `index.html` の `<head>` に貼って push
+4. 確認できたら **サイトマップ** →
+   `sitemap.xml` を送信
+5. **URL 検査** に `https://najoshiteai.pages.dev/` を入れて
+   「インデックス登録をリクエスト」
+
+早ければ数日、通常1〜2週間で「NajoshiteAI」で検索したときに出るようになります。
+
+Bing にも出したい場合は <https://www.bing.com/webmasters> で同じことをします。
+Search Console から設定を取り込めるので、数分で終わります。
+
+### 記事を足したときの追記
+
+`data/posts.json` に記事を足したら、`sitemap.xml` にも1ブロック足してください。
+
+```xml
+  <url>
+    <loc>https://najoshiteai.pages.dev/blog-post.html?id=ここに記事のid</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+```
+
+忘れても、ブログ一覧からたどって見つけてもらえます。ただ、書いたほうが早く載ります。
 
 ---
 
