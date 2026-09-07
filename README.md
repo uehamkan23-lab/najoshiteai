@@ -258,9 +258,12 @@ URL が変わるので、ブラウザは必ず新しいファイルを読み直�
 
 1. <https://github.com/new> を開く
 2. Repository name に `najoshiteai` と入力
-3. **Public** を選ぶ
+3. **Private** を選ぶ
 4. README や .gitignore の追加には**チェックを入れない**（こちらに既にあります）
 5. 「Create repository」
+
+> Cloudflare Pages は非公開リポジトリでも無料で公開できます。
+> 中身は本人以外見られませんが、サイトは誰でも見られる状態になります。
 
 作ったら、このフォルダで次を実行します。
 
@@ -273,8 +276,10 @@ git push -u origin main
 
 1. <https://dash.cloudflare.com/> でアカウントを作る（無料・カード不要）
 2. 左の **Workers & Pages** → **Create** → **Pages** タブ → **Connect to Git**
-3. GitHub を認証して `najoshiteai` リポジトリを選ぶ
-4. 設定を次のようにする
+3. GitHub を認証する。このとき **Only select repositories** で
+   `najoshiteai` を選んでおくと、他のリポジトリは Cloudflare から見えません
+4. 一覧から `najoshiteai` を選ぶ
+5. 設定を次のようにする
 
    | 項目 | 入れる値 |
    | --- | --- |
@@ -284,7 +289,7 @@ git push -u origin main
    | Build command | **空のまま** |
    | Build output directory | `/` |
 
-5. **Save and Deploy**
+6. **Save and Deploy**
 
 1〜2分で <https://najoshiteai.pages.dev> が公開されます。
 
