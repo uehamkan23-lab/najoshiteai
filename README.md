@@ -340,15 +340,30 @@ JSON-LD の中身はページごとに変えてあります。
 
 1. <https://search.google.com/search-console> を開く
 2. 「URL プレフィックス」に `https://najoshiteai.pages.dev` を入力
-3. 所有権の確認 →「HTML タグ」を選び、表示された
-   `<meta name="google-site-verification" content="..." />` を
-   `index.html` の `<head>` に貼って push
+3. 所有権の確認をする（下の「所有権の確認について」を参照）
 4. 確認できたら **サイトマップ** →
    `sitemap.xml` を送信
 5. **URL 検査** に `https://najoshiteai.pages.dev/` を入れて
    「インデックス登録をリクエスト」
 
 早ければ数日、通常1〜2週間で「NajoshiteAI」で検索したときに出るようになります。
+
+### 所有権の確認について
+
+Cloudflare Pages は **`.html` を拡張子なしの URL に転送します**
+（`/contact.html` → `/contact`。公式仕様です）。
+そのため Google が配る確認用 HTML ファイルは、転送のせいで
+見つけてもらえないことがあります。
+
+確認用ファイル `google*.html` はこのフォルダに置いてありますが、
+**もし「確認できませんでした」と出たら、「HTML タグ」の方法に切り替えてください。**
+
+1. Search Console の確認画面で「HTML タグ」を選ぶ
+2. 表示された `<meta name="google-site-verification" content="..." />` をコピー
+3. `index.html` の `<head>` の中（`<title>` の下あたり）に貼る
+4. `git push` して、1〜2分待ってから「確認」を押す
+
+こちらは転送の影響を受けないので確実です。
 
 Bing にも出したい場合は <https://www.bing.com/webmasters> で同じことをします。
 Search Console から設定を取り込めるので、数分で終わります。
