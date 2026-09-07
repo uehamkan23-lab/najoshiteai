@@ -1,0 +1,14 @@
+# Cloudflare Pages に渡すヘッダーの指定。
+# 先頭が _ のファイルは配信されず、設定としてだけ読まれる。
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# 画像は中身が変わらないので、しばらく持っていてよい（7日）
+/assets/*
+  Cache-Control: public, max-age=604800
+
+# 記事の中身は書き換わる。毎回サーバーに確認させる
+/data/*
+  Cache-Control: public, max-age=0, must-revalidate

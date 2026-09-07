@@ -1,7 +1,9 @@
 # NajoshiteAI 公式サイト
 
 素の HTML / CSS / JavaScript だけで作っています。ビルドの手順はありません。
-GitHub にファイルを上げると、GitHub Pages が自動で公開します。
+GitHub に push すると、Cloudflare Pages が自動で公開します。
+
+公開先： <https://najoshiteai.pages.dev>
 
 ---
 
@@ -26,7 +28,7 @@ site/
 │  └ posts.json          ★ ブログの記事はここに書く
 ├ assets/                画像
 ├ favicon.png
-├ .nojekyll              GitHub Pages に「そのまま配って」と伝える印
+├ _headers               Cloudflare Pages への指示（配信はされません）
 ├ .gitattributes         改行コードの決めごと
 └ .gitignore             公開しないもの
 ```
@@ -245,15 +247,18 @@ URL が変わるので、ブラウザは必ず新しいファイルを読み直�
 
 ---
 
-## 公開する（GitHub Pages）
+## 公開する（Cloudflare Pages）
+
+ソースは GitHub に置き、公開は Cloudflare Pages が受け持ちます。
+費用はどちらも 0 円です。
 
 ### 1. 最初の一回だけ
 
-GitHub の画面で新しいリポジトリを作ります。
+**(A) GitHub にリポジトリを作る**
 
 1. <https://github.com/new> を開く
 2. Repository name に `najoshiteai` と入力
-3. **Public** を選ぶ（無料で Pages を使うために必要）
+3. **Public** を選ぶ
 4. README や .gitignore の追加には**チェックを入れない**（こちらに既にあります）
 5. 「Create repository」
 
@@ -264,9 +269,24 @@ git remote add origin https://github.com/uehamkan23-lab/najoshiteai.git
 git push -u origin main
 ```
 
-最後に GitHub の画面で **Settings → Pages** を開き、
-Source を「Deploy from a branch」、Branch を `main` / `(root)` にして Save。
-数分で `https://uehamkan23-lab.github.io/najoshiteai/` が公開されます。
+**(B) Cloudflare とつなぐ**
+
+1. <https://dash.cloudflare.com/> でアカウントを作る（無料・カード不要）
+2. 左の **Workers & Pages** → **Create** → **Pages** タブ → **Connect to Git**
+3. GitHub を認証して `najoshiteai` リポジトリを選ぶ
+4. 設定を次のようにする
+
+   | 項目 | 入れる値 |
+   | --- | --- |
+   | Project name | `najoshiteai` ← **これが URL になります** |
+   | Production branch | `main` |
+   | Framework preset | None |
+   | Build command | **空のまま** |
+   | Build output directory | `/` |
+
+5. **Save and Deploy**
+
+1〜2分で <https://najoshiteai.pages.dev> が公開されます。
 
 ### 2. これ以降の更新
 
@@ -276,29 +296,11 @@ git commit -m "記事を追加"
 git push
 ```
 
-push するたびに、1〜2分で公開ページが入れ替わります。
+push するたびに Cloudflare が気づいて、1〜2分で公開ページが入れ替わります。
+管理画面を触る必要はありません。
 
-### 3. 独自ドメインをつなぐ
-
-お名前.com などでドメインを取ったら、次の2つをします。
-
-**(A) DNS を設定する**（お名前.com の管理画面）
-
-| 種別 | ホスト名 | 値 |
-| --- | --- | --- |
-| A | （空欄） | `185.199.108.153` |
-| A | （空欄） | `185.199.109.153` |
-| A | （空欄） | `185.199.110.153` |
-| A | （空欄） | `185.199.111.153` |
-| CNAME | `www` | `uehamkan23-lab.github.io.` |
-
-**(B) GitHub 側で登録する**
-
-Settings → Pages → Custom domain に取得したドメインを入れて Save。
-反映後に「Enforce HTTPS」にチェックを入れます（証明書は無料・自動です）。
-
-そのあと、**7枚の HTML の `https://uehamkan23-lab.github.io/najoshiteai` を
-新しいドメインに置き換えてください**（下の「公開URL（OGP）」を参照）。
+> 独自ドメイン（najoshiteai.com など）を取った場合も、Cloudflare Pages なら
+> 追加料金なしでつなげます。そのときは下の「公開URL（OGP）」の差し替えも忘れずに。
 
 ---
 
@@ -308,12 +310,12 @@ SNS に貼ったときのタイトルと画像は、各ページの `og:` メタ
 クローラは絶対 URL しか読めないため、次の形で書いてあります。
 
 ```html
-<meta property="og:url"   content="https://uehamkan23-lab.github.io/najoshiteai/about.html" />
-<meta property="og:image" content="https://uehamkan23-lab.github.io/najoshiteai/assets/05-izumi.png" />
+<meta property="og:url"   content="https://najoshiteai.pages.dev/about.html" />
+<meta property="og:image" content="https://najoshiteai.pages.dev/assets/05-izumi.png" />
 ```
 
-**独自ドメインを設定したら、7枚の HTML の
-`https://uehamkan23-lab.github.io/najoshiteai` をすべて置き換えてください。**
+**公開先の URL が変わったら、7枚の HTML の
+`https://najoshiteai.pages.dev` をすべて置き換えてください。**
 エディタの「すべて置換」で一度に直せます。
 ここが違っていると、リンクを貼っても画像が出ません。
 
