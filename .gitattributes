@@ -1,0 +1,8 @@
+# テキストは LF で保存する（Windows でも中身がぶれないように）
+* text=auto eol=lf
+
+# 画像は絶対に触らない
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

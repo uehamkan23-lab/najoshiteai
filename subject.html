@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>対応単元｜NajoshiteAI</title>
+    <meta
+      name="description"
+      content="NajoshiteAI は中学から大学・専攻科まで54の単元に対応しています。学年・教科ごとの収録数と、収録単元の例をご覧いただけます。"
+    />
+    <meta name="theme-color" content="#f7f3ea" />
+
+    <meta property="og:title" content="対応単元｜NajoshiteAI" />
+    <meta property="og:description" content="中学から大学・専攻科まで、54の単元に対応しています。" />
+    <meta property="og:url" content="https://uehamkan23-lab.github.io/najoshiteai/subject.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:image" content="https://uehamkan23-lab.github.io/najoshiteai/assets/02-learn.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.className += " js";
+      }
+    </script>
+
+    <link rel="icon" href="./favicon.png" type="image/png" />
+    <link rel="stylesheet" href="./css/style.css?v=5" />
+  </head>
+
+  <body>
+    <!-- 使う記号だけを置く。矢印・的は Hugeicons（MIT） -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="i-arrow" viewBox="0 0 24 24" fill="none">
+        <path d="M9 6C9 6 15 10.4189 15 12C15 13.5812 9 18 9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+      <symbol id="i-target" viewBox="0 0 24 24" fill="none">
+        <path d="M15.1312 2.5C14.1462 2.17555 13.0936 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.9548 21.8396 9.94704 21.5422 9" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+        <path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+        <path d="M19.5 4.5L12 12M19.5 4.5V2M19.5 4.5H22" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+      </symbol>
+    </svg>
+
+    <header class="bar">
+      <a class="brand" href="./index.html">
+        <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+      </a>
+
+      <nav class="nav" id="nav" aria-label="サイト内の案内">
+        <a href="./about.html">ABOUT<span class="jp">NajoshiteAI とは</span></a>
+        <a href="./subject.html">SUBJECT<span class="jp">対応単元</span></a>
+        <a href="./index.html#member">MEMBER<span class="jp">メンバー</span></a>
+        <a href="./blog.html">BLOG<span class="jp">ブログ</span></a>
+        <a href="./index.html#contact">CONTACT<span class="jp">お問い合わせ</span></a>
+      </nav>
+
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+        <span class="sr">メニューを開く</span>
+      </button>
+    </header>
+
+    <main>
+      <section class="phead">
+        <span class="watermark" aria-hidden="true">SUBJECT</span>
+        <div class="wrap phead-in">
+          <p class="crumbs">
+            <a href="./index.html">ホーム</a>
+            <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+            <span>対応単元</span>
+          </p>
+          <h1 class="htitle">中学から大学まで、54の単元。</h1>
+          <p class="body soft">
+            数学・理科・物理・化学・生物・情報。どれも「手順は言えるのに、意味が言えない」ところから選んでいます。
+          </p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           学年・教科ごとの収録数
+           ============================================================ -->
+      <section class="band" style="padding-top: clamp(28px, 4vw, 48px)">
+        <div class="wrap">
+          <div class="split">
+            <div class="split-text" data-reveal>
+              <p class="count-lead">
+                <span class="count" data-count="54">54</span>
+                <span class="count-unit">単元に対応しています</span>
+              </p>
+
+              <table class="tbl">
+                <caption>学年・教科ごとの収録数</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">学年</th>
+                    <th scope="col">教科</th>
+                    <th scope="col" class="num">単元数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">中学生</th><td>数学</td><td class="num">5</td></tr>
+                  <tr><th scope="row">中学生</th><td>理科</td><td class="num">10</td></tr>
+                  <tr><th scope="row">高校生</th><td>数学</td><td class="num">12</td></tr>
+                  <tr><th scope="row">高校生</th><td>物理</td><td class="num">7</td></tr>
+                  <tr><th scope="row">高校生</th><td>化学</td><td class="num">3</td></tr>
+                  <tr><th scope="row">高校生</th><td>生物</td><td class="num">3</td></tr>
+                  <tr><th scope="row">高校生</th><td>情報</td><td class="num">3</td></tr>
+                  <tr><th scope="row">大学・専攻科</th><td>数学</td><td class="num">8</td></tr>
+                  <tr><th scope="row">大学・専攻科</th><td>情報</td><td class="num">3</td></tr>
+                </tbody>
+                <tfoot>
+                  <tr><th scope="row" colspan="2">合計</th><td class="num">54</td></tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <img
+              class="shot"
+              data-reveal
+              data-delay="1"
+              src="./assets/02-learn.png"
+              alt="学年と教科で単元を選ぶ一覧画面"
+              width="780"
+              height="1388"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      <svg class="curve" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 C 380 0 1060 0 1440 60 Z" fill="currentColor" />
+      </svg>
+
+      <!-- ============================================================
+           収録単元の例
+           ============================================================ -->
+      <section class="band paper">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <span class="watermark" aria-hidden="true">LIST</span>
+            <h2 class="vtitle">収録単元の例。</h2>
+            <p class="sec-lead">
+              いま入っている単元の一部です。単元は現在も追加を続けています。
+            </p>
+          </div>
+
+          <dl class="examples" data-reveal>
+            <div>
+              <dt>中学 数学</dt>
+              <dd>一次方程式／一次関数／三平方の定理 ほか</dd>
+            </div>
+            <div>
+              <dt>中学 理科</dt>
+              <dd>状態変化／原子と分子／化学変化／質量保存 ほか</dd>
+            </div>
+            <div>
+              <dt>高校 数学</dt>
+              <dd>極限／微分／積分／確率 ほか</dd>
+            </div>
+            <div>
+              <dt>高校 物理</dt>
+              <dd>力学／波動 ほか</dd>
+            </div>
+            <div>
+              <dt>高校 化学</dt>
+              <dd>物質量／酸と塩基 ほか</dd>
+            </div>
+            <div>
+              <dt>高校 生物</dt>
+              <dd>光合成と呼吸／遺伝 ほか</dd>
+            </div>
+            <div>
+              <dt>高校 情報</dt>
+              <dd>ネットワーク／アルゴリズム ほか</dd>
+            </div>
+            <div>
+              <dt>大学・専攻科 数学</dt>
+              <dd>行列と一次変換／ベイズの定理 ほか</dd>
+            </div>
+            <div>
+              <dt>大学・専攻科 情報</dt>
+              <dd>計算量／探索アルゴリズム ほか</dd>
+            </div>
+          </dl>
+
+          <p class="note" data-reveal>
+            <svg class="ic" aria-hidden="true"><use href="#i-target" /></svg>
+            <span>
+              単元が終わるのは、必須の概念をご自身の言葉で説明できたときだけです。当てずっぽうでは進みません。
+            </span>
+          </p>
+
+          <div class="pager">
+            <a class="tlink" href="./about.html">NajoshiteAI とは</a>
+            <a class="tlink" href="./index.html#contact">
+              ほしい単元をお知らせいただく
+              <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <div class="foot-in">
+          <div class="foot-brand">
+            <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+            <p>
+              NajoshiteAI は、AI の生徒に教えることで「わかったつもり」に気づくための学習アプリです。2027年春リリース予定。
+            </p>
+          </div>
+
+          <nav class="foot-nav" aria-label="足元の案内">
+            <a href="./about.html">NajoshiteAI とは</a>
+            <a href="./index.html#member">メンバー</a>
+            <a href="./about.html#steps">使い方</a>
+            <a href="./blog.html">ブログ</a>
+            <a href="./about.html#map">理解度マップ</a>
+            <a href="./index.html#contact">お問い合わせ</a>
+            <a href="./subject.html">対応単元</a>
+            <a
+              href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=XYP-cpVeEkWK4KezivJfyKjxvWNReixEqgz9Q2xcDE5UNkhKMU5BR0paVEQyRFZMSUhQSkswWVRQOC4u&amp;route=shorturl"
+              target="_blank"
+              rel="noopener"
+              >アンケート</a
+            >
+          </nav>
+        </div>
+
+        <p class="copy">&copy; 2026 NajoshiteAI</p>
+      </div>
+    </footer>
+
+    <script src="./js/main.js?v=5" defer></script>
+  </body>
+</html>

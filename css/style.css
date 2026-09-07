@@ -1,0 +1,2206 @@
+@charset "utf-8";
+/*
+ * NajoshiteAI 公式サイト
+ * ------------------------------------------------------------------
+ * 設計の方針
+ *   ・地は生成り、文字と見出しは焦茶。差し色は藍を一色だけ。
+ *   ・セクションの頭は「背後の巨大な英字」＋「縦書きの日本語見出し」の二段構え。
+ *   ・写真は角を大きく丸め、余白を広く取って主役に据える。
+ *   ・絵文字は使わない。記号はすべて SVG スプライトから <use> で呼び出す。
+ * ------------------------------------------------------------------
+ */
+
+/* ============================================================
+   1. 変数
+   ============================================================ */
+:root {
+  /* 色 ---------------------------------------------------- */
+  --ground: #f7f3ea;        /* 生成りの地 */
+  --ground-deep: #efe8da;   /* 一段沈めた地 */
+  --paper: #ffffff;         /* 面 */
+  --ink: #33291f;           /* 本文 */
+  --ink-soft: #7a6b5c;      /* 補助の文字 */
+  --brown: #6b4726;         /* 主色。見出しと英字ラベル */
+  --brown-deep: #4a3018;    /* 押したとき、濃い面 */
+  --line: #e5dbc9;          /* 罫 */
+  --blue: #2e6fa3;          /* 差し色。ここぞという一点だけ */
+
+  /* 書体 -------------------------------------------------- */
+  --en: "Lilita One", system-ui, sans-serif;
+  --jp: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+        "Yu Gothic", Meiryo, sans-serif;
+
+  /* 寸法 -------------------------------------------------- */
+  --wrap: 1120px;
+  --gutter: 24px;
+  --sec-y: clamp(84px, 11vw, 148px);
+  --radius: 28px;
+  --radius-sm: 14px;
+  --header-h: 72px;
+
+  /* 動き -------------------------------------------------- */
+  --ease: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --dur: 0.6s;
+}
+
+/* ============================================================
+   2. 土台
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--jp);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* 日本語を文節で折る。未対応のブラウザは従来どおり */
+  word-break: auto-phrase;
+  line-break: strict;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+figure {
+  margin: 0;
+}
+
+/* 折り返してほしくないひとまとまり */
+.ph {
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* 読み上げ専用 */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* アイコンの置き場所。描画はしない */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.ic {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  vertical-align: -0.14em;
+}
+
+/* ============================================================
+   3. 器
+   ============================================================ */
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.wrap.narrow {
+  max-width: 760px;
+}
+
+.band {
+  position: relative;
+  padding: var(--sec-y) 0;
+}
+
+.band.paper {
+  background: var(--paper);
+}
+
+.band.deep {
+  background: var(--ground-deep);
+}
+
+/*
+ * セクションどうしの境目に渡す、ゆるい弧。
+ * 直後に来るセクションと同じ色を currentColor で塗る。
+ * 継ぎ目に髪の毛ほどの隙間が出ることがあるので 1px 重ねておく。
+ */
+.curve {
+  display: block;
+  width: 100%;
+  height: clamp(26px, 3.6vw, 52px);
+  margin-bottom: -1px;
+  color: var(--paper);
+}
+
+.curve.to-ground {
+  color: var(--ground);
+}
+
+.curve.to-deep {
+  color: var(--ground-deep);
+}
+
+/* ============================================================
+   4. 見出しの型
+   ------------------------------------------------------------
+   背後に巨大な英字を敷き、その手前に縦書きの日本語見出しを置く。
+   狭い画面では縦書きをやめ、英字も小さくする。
+   ============================================================ */
+.sec-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 3vw, 40px);
+  margin-bottom: clamp(44px, 6vw, 76px);
+}
+
+/* 背後の巨大英字 */
+.watermark {
+  position: absolute;
+  top: -0.42em;
+  left: -0.04em;
+  z-index: 0;
+  font-family: var(--en);
+  font-size: clamp(64px, 13vw, 176px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--brown);
+  opacity: 0.09;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.paper .watermark {
+  opacity: 0.07;
+}
+
+/* 縦書きの日本語見出し */
+.vtitle {
+  position: relative;
+  z-index: 1;
+  writing-mode: vertical-rl;
+  font-size: clamp(19px, 2.5vw, 27px);
+  font-weight: 700;
+  line-height: 1.85;
+  letter-spacing: 0.13em;
+  color: var(--brown);
+  margin: 0;
+  padding-right: 6px;
+  max-height: 12em;
+}
+
+/*
+ * 縦中横。縦書きの中で二桁の数字を横に組み、正しい向きで見せる。
+ * 横書きのときは何も起きないので、そのまま置いておける。
+ */
+.tcy {
+  -webkit-text-combine: horizontal;
+  text-combine-upright: all;
+  letter-spacing: 0;
+}
+
+/* 縦書き見出しに添える一本の罫 */
+.vtitle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -14px;
+  width: 2px;
+  height: 100%;
+  background: var(--brown);
+  opacity: 0.28;
+}
+
+/* 見出しの脇に置く説明 */
+.sec-lead {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding-top: clamp(30px, 5vw, 62px);
+  max-width: 34em;
+  color: var(--ink-soft);
+}
+
+/* 見出しの脇に添えるなじみ。広い画面でだけ出す */
+.head-figure {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  align-self: flex-end;
+  width: clamp(100px, 12vw, 154px);
+  filter: drop-shadow(0 14px 22px rgb(51 41 31 / 12%));
+}
+
+/* 小さいほうの英字ラベル */
+.kicker {
+  display: block;
+  font-family: var(--en);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: var(--brown);
+  opacity: 0.7;
+  margin-bottom: 14px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--jp);
+  font-weight: 700;
+  color: var(--brown);
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.htitle {
+  font-size: clamp(20px, 2.6vw, 28px);
+  margin: 0 0 24px;
+}
+
+.body {
+  margin: 0 0 22px;
+  max-width: 40em;
+}
+
+.body:last-child {
+  margin-bottom: 0;
+}
+
+.soft {
+  color: var(--ink-soft);
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 28px 0 0;
+  padding: 18px 22px;
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: var(--ink-soft);
+  background: var(--ground-deep);
+  border-radius: var(--radius-sm);
+}
+
+.paper .note {
+  background: var(--ground);
+}
+
+.note .ic {
+  margin-top: 0.62em;
+  color: var(--brown);
+}
+
+/* ============================================================
+   5. ボタン
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 20px 15px 30px;
+  background: var(--brown);
+  color: var(--paper);
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border-radius: 999px;
+  transition:
+    background-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.btn:hover {
+  background: var(--brown-deep);
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* ボタン内の丸いしるし */
+.btn .dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 20%);
+  transition: transform 0.25s var(--ease);
+}
+
+.btn:hover .dot {
+  transform: translateX(4px);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--brown);
+  border: 1px solid var(--line);
+}
+
+.btn.ghost:hover {
+  background: var(--paper);
+  border-color: var(--brown);
+}
+
+.btn.ghost .dot {
+  background: var(--ground-deep);
+}
+
+.paper .btn.ghost .dot {
+  background: var(--ground);
+}
+
+/* 文中の控えめなリンク */
+.tlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--line);
+  transition: border-color 0.25s;
+}
+
+.tlink:hover {
+  border-bottom-color: var(--brown);
+}
+
+.tlink .ic {
+  transition: transform 0.25s var(--ease);
+}
+
+.tlink:hover .ic {
+  transform: translateX(3px);
+}
+
+/* ============================================================
+   6. ヘッダー
+   ============================================================ */
+.bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: var(--header-h);
+  padding-inline: clamp(16px, 3vw, 32px);
+  transition:
+    background-color 0.4s var(--ease),
+    box-shadow 0.4s var(--ease);
+}
+
+.bar.stuck {
+  background: rgb(247 243 234 / 92%);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+.brand img {
+  width: auto;
+  height: 40px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2.6vw, 34px);
+}
+
+.nav a {
+  position: relative;
+  font-family: var(--en);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--brown);
+  text-decoration: none;
+  padding-block: 6px;
+}
+
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--brown);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+
+.nav a:hover::after,
+.nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.nav .jp {
+  display: block;
+  font-family: var(--jp);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* 開閉ボタン。狭い画面でだけ出る */
+.menu-btn {
+  display: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--brown);
+  cursor: pointer;
+}
+
+.menu-btn span {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  margin: 4px auto;
+  background: currentColor;
+  transition: transform 0.3s var(--ease), opacity 0.2s;
+}
+
+.menu-btn[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.menu-btn[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+/* ============================================================
+   7. ヒーロー
+   ============================================================ */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: calc(var(--header-h) + clamp(36px, 5vw, 68px)) 0 clamp(52px, 7vw, 92px);
+}
+
+/* 地に敷く、ごく薄い横縞。ノートの罫線に見立てている */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 47px,
+    rgb(107 71 38 / 6%) 47px 48px
+  );
+  pointer-events: none;
+}
+
+.hero-in {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(24px, 5vw, 72px);
+}
+
+/*
+ * 縦書きなので、いちばん右に見出しが来るよう順序を裏返す。
+ * HTML 上は「見出し → 説明」の順のままなので、読み上げの順も自然。
+ */
+.hero-copy {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: clamp(16px, 2.5vw, 30px);
+}
+
+.hero h1 {
+  writing-mode: vertical-rl;
+  font-size: clamp(26px, 4.4vw, 46px);
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.16em;
+  color: var(--brown);
+  margin: 0;
+  max-height: 9.4em;
+}
+
+.hero-side {
+  writing-mode: vertical-rl;
+  font-size: 13px;
+  line-height: 2.2;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  margin: 0;
+  max-height: 22em;
+}
+
+.hero-figure {
+  position: relative;
+  justify-self: center;
+}
+
+.hero-figure img {
+  position: relative;
+  width: clamp(230px, 32vw, 400px);
+  filter: drop-shadow(0 22px 34px rgb(51 41 31 / 14%));
+}
+
+/* なじみの背後に置く円 */
+.hero-figure::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: clamp(250px, 34vw, 430px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 90%) 0%,
+    rgb(255 255 255 / 55%) 55%,
+    transparent 72%
+  );
+}
+
+/* ヒーロー下の導線 */
+.hero-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 26px;
+  margin-top: clamp(36px, 5vw, 60px);
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.hero-tag .ic {
+  color: var(--blue);
+}
+
+/* ============================================================
+   8. 使い方の三段
+   ============================================================ */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 8vw, 104px);
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  align-items: center;
+  gap: clamp(28px, 5vw, 68px);
+}
+
+.step:nth-child(even) {
+  grid-template-columns: 280px 1fr;
+}
+
+.step:nth-child(even) .step-text {
+  order: 2;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--en);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--brown);
+  margin-bottom: 14px;
+}
+
+.step-num::after {
+  content: "";
+  width: 46px;
+  height: 1px;
+  background: var(--line);
+}
+
+.step h3 {
+  font-size: clamp(17px, 2vw, 21px);
+  margin-bottom: 16px;
+}
+
+.step p {
+  margin: 0;
+  max-width: 32em;
+  color: var(--ink-soft);
+}
+
+/* 画面写真 */
+.shot {
+  width: 280px;
+  justify-self: center;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 0 20px 46px rgb(51 41 31 / 10%);
+  overflow: hidden;
+}
+
+/* 学年の札 */
+.grades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0 0;
+}
+
+.grades li {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 20px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--brown);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.grades b {
+  font-family: var(--en);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* セクションの締めに置くボタンの間合い */
+.sec-foot {
+  margin: clamp(34px, 4.5vw, 52px) 0 0;
+}
+
+/* ボタンを二つ並べる */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: clamp(30px, 4vw, 44px) 0 0;
+}
+
+/* ============================================================
+   9. 二段組（文と図）
+   ============================================================ */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+}
+
+.split.reverse {
+  grid-template-columns: 280px 1fr;
+}
+
+.split.reverse .split-text {
+  order: 2;
+}
+
+/* ============================================================
+   10. 対応単元
+   ============================================================ */
+.count-lead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 26px;
+}
+
+.count {
+  font-family: var(--en);
+  font-size: clamp(52px, 8vw, 86px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--brown);
+  font-variant-numeric: tabular-nums;
+}
+
+.count-unit {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--brown);
+  letter-spacing: 0.1em;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13.5px;
+}
+
+.tbl caption {
+  text-align: left;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  padding-bottom: 12px;
+}
+
+.tbl th,
+.tbl td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.7;
+}
+
+.tbl thead th {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  border-bottom-color: var(--brown);
+}
+
+.tbl tbody th {
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.tbl td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--brown);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tbl tfoot th,
+.tbl tfoot td {
+  border-bottom: none;
+  border-top: 2px solid var(--brown);
+  font-weight: 700;
+  color: var(--brown);
+}
+
+/* 収録例 */
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 34px 0 0;
+}
+
+.examples > div {
+  display: grid;
+  grid-template-columns: 8.5em 1fr;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.examples dt {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+}
+
+.examples dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   11. メンバー
+   ------------------------------------------------------------
+   ホームでは写真と名前だけ。写真は数秒ごとに二枚目へ入れ替わる。
+   ============================================================ */
+.members {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 48px);
+  max-width: 820px;
+  margin-inline: auto;
+}
+
+.mcard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.35s var(--ease);
+}
+
+.mcard:hover {
+  transform: translateY(-6px);
+}
+
+/* 写真を重ねる枠。二枚を同じ場所に置いて入れ替える */
+.mcard-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ground-deep);
+  box-shadow: 0 18px 40px rgb(51 41 31 / 12%);
+}
+
+.mcard-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.9s var(--ease);
+}
+
+/* 二枚目は隠しておき、JS が .flip を付けたときだけ見せる */
+.mcard-photo img.back {
+  opacity: 0;
+}
+
+.mcard-photo.flip img.front {
+  opacity: 0;
+}
+
+.mcard-photo.flip img.back {
+  opacity: 1;
+}
+
+/* 下端に敷く帯。名前を写真の上に置いても読めるようにする */
+.mcard-photo::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 46%;
+  background: linear-gradient(to top, rgb(51 41 31 / 72%), transparent);
+  pointer-events: none;
+}
+
+.mcard-name {
+  position: absolute;
+  z-index: 1;
+  left: clamp(18px, 3vw, 28px);
+  right: clamp(18px, 3vw, 28px);
+  bottom: clamp(18px, 3vw, 26px);
+  color: var(--paper);
+}
+
+.mcard-name .jp {
+  display: block;
+  font-size: clamp(19px, 2.4vw, 25px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+}
+
+.mcard-name .en {
+  display: block;
+  font-family: var(--en);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  opacity: 0.86;
+  margin-top: 4px;
+}
+
+.mcard-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: var(--brown);
+}
+
+.mcard-more .ic {
+  transition: transform 0.3s var(--ease);
+}
+
+.mcard:hover .mcard-more .ic {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   12. ブログ
+   ============================================================ */
+
+
+
+
+.post-date {
+  font-family: var(--en);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--brown);
+  background: var(--ground-deep);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.paper .tag {
+  background: var(--ground);
+}
+
+
+
+
+/* ------------------------------------------------------------
+   記事カード
+   ------------------------------------------------------------
+   ・著者名 → 写真 → 題名 の順。写真の右上に日付の札が飛び出す。
+   ・ホーム（.jrow）は横に流し、一覧（.jgrid）は縦に積む。
+   ・写真は縦長の画面写真も横長の写真も混ざるので、
+     読み込んだあと js/blog.js が形を見て cover / contain を切り替える。
+   ------------------------------------------------------------ */
+
+/* ホーム：横に流す。指で送れるよう一枚ずつ止める */
+.jrow {
+  display: flex;
+  gap: clamp(18px, 2.6vw, 30px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  padding-bottom: 14px;
+  /* 端まで流せるよう、いったん余白の外へ出してから戻す */
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.jrow::-webkit-scrollbar {
+  height: 6px;
+}
+
+.jrow::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+
+.jrow .jcard {
+  flex: 0 0 clamp(228px, 64vw, 292px);
+  scroll-snap-align: start;
+}
+
+/* 読み込み中・該当なしの一行は、並びの中でも幅いっぱいに */
+.jrow .state {
+  flex: 1 1 100%;
+}
+
+.jgrid .state {
+  grid-column: 1 / -1;
+}
+
+/* 一覧：縦に積む。広い画面では自然に段が増える */
+.jgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 258px), 1fr));
+  gap: clamp(30px, 4vw, 46px);
+}
+
+.jcard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.jcard-author {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+}
+
+.jcard-author::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: var(--brown);
+  opacity: 0.45;
+}
+
+/* 札がはみ出せるよう、この枠では切り取らない */
+.jcard-thumb {
+  position: relative;
+  display: block;
+}
+
+.jcard-shot {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--ground-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.paper .jcard-shot {
+  background: var(--ground);
+}
+
+.jcard-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s var(--ease);
+}
+
+/* 横長の写真は枠いっぱいに。縦長の画面写真は上の contain のまま */
+.jcard-shot img.fill {
+  object-fit: cover;
+}
+
+/*
+ * 見出し画像のない記事は、代わりになじみを置く。
+ * ブロックの中では margin:auto が上下に効かないので、
+ * 絶対配置にして四辺を 0 で留め、auto マージンで上下左右とも中央にする。
+ */
+.jcard-shot img.mark {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: 74%;
+  margin: auto;
+  opacity: 0.72;
+}
+
+.jcard:hover .jcard-shot img {
+  transform: scale(1.03);
+}
+
+/* 日付の札。写真の右上へ飛び出させる */
+.jcard-date {
+  position: absolute;
+  z-index: 2;
+  top: -14px;
+  right: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 78px;
+  padding: 13px 10px 15px;
+  background: var(--brown);
+  color: var(--ground);
+  border-radius: 16px;
+  box-shadow: 0 10px 22px rgb(51 41 31 / 24%);
+}
+
+.jcard-vol {
+  display: block;
+  font-family: var(--en);
+  line-height: 1;
+  text-align: center;
+}
+
+.jcard-vol i {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+}
+
+.jcard-vol b {
+  display: block;
+  margin-top: 3px;
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.jcard-md,
+.jcard-yr {
+  font-family: var(--en);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  opacity: 0.88;
+}
+
+.jcard-md {
+  margin-top: 4px;
+}
+
+.jcard-title {
+  display: block;
+  margin-top: 18px;
+  font-size: clamp(15.5px, 1.6vw, 17px);
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  transition: color 0.25s;
+}
+
+.jcard:hover .jcard-title {
+  color: var(--brown);
+}
+
+.jcard-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.jcard-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--brown);
+  opacity: 0.85;
+}
+
+.jcard-more .ic {
+  transition: transform 0.25s var(--ease);
+}
+
+.jcard:hover .jcard-more .ic {
+  transform: translateX(3px);
+}
+
+/* 横に流せることを知らせる一行 */
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+/*
+ * display を指定すると、ブラウザ標準の [hidden]{display:none} を
+ * 上書きしてしまう。JS が hidden を立てたときに確実に消えるよう、
+ * ここで打ち消しておく。
+ */
+.swipe-hint[hidden] {
+  display: none;
+}
+
+.swipe-hint .ic {
+  color: var(--brown);
+}
+
+/*
+ * 記事の見出し画像。
+ * 縦長の画面写真も横長の写真も切り取らずに収めるため、
+ * 生成りの枠へ contain で置き、高さのほうで頭を抑える。
+ */
+.cover {
+  margin: 0 0 clamp(28px, 4vw, 40px);
+}
+
+.cover-box {
+  display: grid;
+  place-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  min-height: 180px;
+  padding: clamp(14px, 2vw, 22px);
+  background: var(--ground-deep);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.paper .cover-box {
+  background: var(--ground);
+}
+
+.cover-box img {
+  width: auto;
+  max-width: 100%;
+  max-height: 260px;
+}
+
+.cover figcaption {
+  margin-top: 12px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* 本文中に画像を横に並べる */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.gallery figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+}
+
+.article-body .gallery img {
+  width: auto;
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+
+.gallery figcaption {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.8;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* 一覧の絞り込み */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.filters button {
+  padding: 8px 20px;
+  font-family: var(--jp);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    border-color 0.25s;
+}
+
+.filters button:hover {
+  border-color: var(--brown);
+  color: var(--brown);
+}
+
+.filters button[aria-pressed="true"] {
+  background: var(--brown);
+  border-color: var(--brown);
+  color: var(--paper);
+}
+
+/* 記事本文 */
+.article {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.article-head {
+  padding-bottom: 30px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.article h1 {
+  font-size: clamp(21px, 3vw, 30px);
+  line-height: 1.75;
+}
+
+.article-author {
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+
+.article-body > * {
+  margin: 0 0 26px;
+}
+
+.article-body > *:last-child {
+  margin-bottom: 0;
+}
+
+.article-body h2 {
+  font-size: clamp(17px, 2.2vw, 20px);
+  padding-left: 14px;
+  border-left: 3px solid var(--brown);
+  line-height: 1.7;
+  margin-top: 46px;
+}
+
+.article-body ul {
+  list-style: none;
+  padding-left: 2px;
+}
+
+.article-body li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.article-body li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.92em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brown);
+  opacity: 0.5;
+}
+
+/*
+ * 本文の画像。縦長の画面写真は放っておくと本文幅いっぱいに
+ * 伸びてしまうので、高さのほうで頭を抑える。
+ */
+.article-body figure img {
+  width: auto;
+  max-width: 100%;
+  max-height: 330px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  margin-inline: auto;
+}
+
+.article-body figcaption {
+  margin-top: 10px;
+  font-size: 12.5px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.article-foot {
+  margin-top: 56px;
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+}
+
+/* 読み込み中・該当なしの知らせ */
+.state {
+  padding: 46px 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+
+/* ============================================================
+   13. メンバー詳細ページ
+   ============================================================ */
+.mhero {
+  position: relative;
+  padding: calc(var(--header-h) + clamp(40px, 6vw, 76px)) 0 clamp(44px, 6vw, 72px);
+  background: var(--ground-deep);
+}
+
+.mhero-in {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) 1fr;
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+}
+
+.mhero figure {
+  position: relative;
+}
+
+.mhero figure img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 48px rgb(51 41 31 / 18%);
+}
+
+.mhero figcaption {
+  margin-top: 12px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.mrole {
+  display: inline-block;
+  padding: 6px 18px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--paper);
+  background: var(--brown);
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+
+.mname {
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  color: var(--brown);
+  margin: 0;
+}
+
+.mname-en {
+  display: block;
+  font-family: var(--en);
+  font-size: clamp(15px, 1.8vw, 19px);
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  margin-top: 10px;
+}
+
+.mfacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 28px 0 0;
+}
+
+.mfacts > div {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  gap: 14px;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13.5px;
+}
+
+.mfacts > div:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.mfacts dt {
+  font-weight: 500;
+  color: var(--brown);
+  letter-spacing: 0.1em;
+}
+
+.mfacts dd {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.85;
+}
+
+/* 横長で見せたい一枚。紹介ページの二枚目に使う */
+.wide-photo {
+  max-width: min(520px, 100%);
+  margin-inline: auto;
+}
+
+.wide-photo img {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 44px rgb(51 41 31 / 12%);
+}
+
+.wide-photo figcaption {
+  margin-top: 14px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* 一人称のメッセージ */
+.quote {
+  position: relative;
+  padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 48px);
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.quote p {
+  margin: 0 0 20px;
+}
+
+.quote p:last-child {
+  margin-bottom: 0;
+}
+
+/* 分野別の一覧 */
+.tracks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: clamp(30px, 4vw, 52px);
+}
+
+.tracks + .tracks-foot {
+  margin-top: clamp(36px, 5vw, 56px);
+}
+
+.track h3 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 15.5px;
+  letter-spacing: 0.12em;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--brown);
+}
+
+.track h3 .ic {
+  color: var(--brown);
+  font-size: 19px;
+}
+
+.track li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 14px;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--ink-soft);
+}
+
+.track li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 0.86em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 2px solid var(--brown);
+}
+
+.track li b {
+  display: block;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.track li a {
+  color: var(--blue);
+  text-underline-offset: 3px;
+}
+
+/*
+ * 学歴の道すじ。
+ * 上から下へ一本の線でつなぎ、節目に丸を置く。
+ * 丸と線は .track li の既定を上書きしている。
+ */
+.path {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2px;
+}
+
+.path li {
+  position: relative;
+  padding: 0 0 24px 32px;
+  margin-bottom: 0;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--ink-soft);
+}
+
+.path li:last-child {
+  padding-bottom: 0;
+}
+
+/* 節目の丸 */
+.path li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.66em;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--brown);
+  background: var(--ground);
+}
+
+.paper .path li::before {
+  background: var(--paper);
+}
+
+/* 丸と丸をつなぐ縦の線 */
+.path li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2em;
+  bottom: 2px;
+  width: 1px;
+  background: var(--brown);
+  opacity: 0.32;
+}
+
+/* 技能の札 */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.chips li {
+  padding: 7px 16px;
+  margin-bottom: 0;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: var(--brown);
+  background: var(--ground-deep);
+  border-radius: 999px;
+}
+
+/* 札は箇条書きではないので、.track li の丸印を打ち消す */
+.chips li::before {
+  content: none;
+}
+
+.paper .chips li {
+  background: var(--ground);
+}
+
+/* 準備中の断り書き */
+.pending {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 28px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  background: var(--ground-deep);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.paper .pending {
+  background: var(--ground);
+}
+
+.pending .ic {
+  color: var(--brown);
+  font-size: 18px;
+}
+
+/* 連絡先 */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.linkcard {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  font-size: 13.5px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition:
+    border-color 0.25s,
+    transform 0.25s var(--ease);
+}
+
+.linkcard:hover {
+  border-color: var(--brown);
+  transform: translateY(-2px);
+}
+
+.linkcard .ic {
+  color: var(--brown);
+  font-size: 17px;
+}
+
+/* 前後の行き来 */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: clamp(48px, 7vw, 80px);
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+}
+
+/* ============================================================
+   14. ページの頭（下層ページ共通）
+   ============================================================ */
+.phead {
+  position: relative;
+  padding: calc(var(--header-h) + clamp(46px, 7vw, 84px)) 0 clamp(34px, 5vw, 56px);
+  overflow: hidden;
+}
+
+.phead .watermark {
+  top: auto;
+  bottom: -0.24em;
+  left: var(--gutter);
+}
+
+.phead-in {
+  position: relative;
+  z-index: 1;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+
+.crumbs a {
+  text-decoration: none;
+  color: var(--brown);
+}
+
+.crumbs a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.crumbs .ic {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   15. 問い合わせ
+   ============================================================ */
+.contact-in {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: stretch;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 4vw, 44px);
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.contact-card h3 {
+  font-size: 16.5px;
+  margin-bottom: 14px;
+}
+
+.contact-card p {
+  margin: 0 0 22px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+.contact-card .btn,
+.contact-card .linkcard {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* ============================================================
+   16. 足元
+   ============================================================ */
+.foot {
+  background: var(--brown);
+  color: var(--paper);
+  padding: clamp(48px, 6vw, 72px) 0 32px;
+}
+
+.foot-in {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 36px 48px;
+  align-items: start;
+}
+
+.foot-brand img {
+  height: 46px;
+  width: auto;
+  background: var(--paper);
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+
+.foot-brand p {
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  line-height: 2;
+  color: rgb(255 255 255 / 72%);
+  max-width: 26em;
+}
+
+.foot-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 44px;
+}
+
+.foot-nav a {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  color: rgb(255 255 255 / 82%);
+  transition: color 0.25s;
+}
+
+.foot-nav a:hover {
+  color: var(--paper);
+}
+
+.copy {
+  margin: clamp(36px, 5vw, 56px) 0 0;
+  padding-top: 22px;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+  font-family: var(--en);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgb(255 255 255 / 62%);
+}
+
+/* ============================================================
+   17. 現れ方
+   ------------------------------------------------------------
+   隠す指定は html.js の下にしか書かない。<head> で描画前に付ける
+   クラスなので、スクリプトが動かない環境では最初から見えている。
+   ============================================================ */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+.js [data-reveal].shown {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+.js [data-reveal].shown[data-delay="1"] { transition-delay: 0.1s; }
+.js [data-reveal].shown[data-delay="2"] { transition-delay: 0.2s; }
+.js [data-reveal].shown[data-delay="3"] { transition-delay: 0.3s; }
+.js [data-reveal].shown[data-delay="4"] { transition-delay: 0.4s; }
+
+/* ============================================================
+   18. 操作の見え方
+   ============================================================ */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--brown);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.foot a:focus-visible {
+  outline-color: var(--paper);
+}
+
+/* ============================================================
+   19. 狭い画面
+   ============================================================ */
+@media (max-width: 900px) {
+  :root {
+    --header-h: 64px;
+  }
+
+  /* ナビは開閉式にする */
+  .menu-btn {
+    display: block;
+  }
+
+  .nav {
+    position: fixed;
+    inset: var(--header-h) 0 auto;
+    display: grid;
+    gap: 0;
+    padding: 8px clamp(16px, 5vw, 32px) 28px;
+    background: rgb(247 243 234 / 97%);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    transform: translateY(-12px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s var(--ease),
+      transform 0.3s var(--ease),
+      visibility 0.3s;
+  }
+
+  .nav.open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .nav a {
+    padding: 15px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 16px;
+  }
+
+  .nav a::after {
+    display: none;
+  }
+
+  .nav .jp {
+    display: inline;
+    margin-left: 12px;
+  }
+
+  /* 縦書きをやめる */
+  .hero h1,
+  .hero-side,
+  .vtitle {
+    writing-mode: horizontal-tb;
+    max-height: none;
+  }
+
+  .vtitle {
+    padding-right: 0;
+    padding-left: 14px;
+  }
+
+  .vtitle::before {
+    top: 0.25em;
+    right: auto;
+    left: 0;
+    width: 3px;
+    height: calc(100% - 0.5em);
+  }
+
+  .sec-head {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .head-figure {
+    display: none;
+  }
+
+  .sec-lead {
+    padding-top: 0;
+  }
+
+  .hero-in {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .hero-copy {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .hero h1 {
+    font-size: clamp(25px, 6.6vw, 38px);
+    line-height: 1.75;
+  }
+
+  .hero-side {
+    font-size: 13.5px;
+    line-height: 2.05;
+  }
+
+  .step,
+  .step:nth-child(even),
+  .split,
+  .split.reverse,
+  .mhero-in,
+  .contact-in {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .step-text,
+  .split-text {
+    order: 0 !important;
+  }
+
+  .mhero figure {
+    max-width: 320px;
+  }
+
+  .foot-in {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14.5px;
+    line-height: 1.95;
+  }
+
+  .members {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+  }
+
+  .shot,
+  .split .shot {
+    width: min(280px, 76vw);
+  }
+
+  .examples > div,
+  .mfacts > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .tbl th,
+  .tbl td {
+    padding: 11px 6px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .foot-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   20. 動きを減らす設定
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .mcard-photo img {
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

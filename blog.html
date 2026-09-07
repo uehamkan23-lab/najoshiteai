@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ブログ｜NajoshiteAI</title>
+    <meta
+      name="description"
+      content="NajoshiteAI の開発ログ、お知らせ、学び方についてのはなしを掲載しています。"
+    />
+    <meta name="theme-color" content="#f7f3ea" />
+
+    <meta property="og:title" content="ブログ｜NajoshiteAI" />
+    <meta property="og:description" content="NajoshiteAI の開発の様子をお伝えしています。" />
+    <meta property="og:url" content="https://uehamkan23-lab.github.io/najoshiteai/blog.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://uehamkan23-lab.github.io/najoshiteai/assets/01-home.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.className += " js";
+      }
+    </script>
+
+    <link rel="icon" href="./favicon.png" type="image/png" />
+    <link rel="stylesheet" href="./css/style.css?v=5" />
+  </head>
+
+  <body>
+    <!-- 使う記号だけを置く。矢印は Hugeicons（MIT） -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="i-arrow" viewBox="0 0 24 24" fill="none">
+        <path d="M9 6C9 6 15 10.4189 15 12C15 13.5812 9 18 9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+    </svg>
+
+    <header class="bar">
+      <a class="brand" href="./index.html">
+        <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+      </a>
+
+      <nav class="nav" id="nav" aria-label="サイト内の案内">
+        <a href="./about.html">ABOUT<span class="jp">NajoshiteAI とは</span></a>
+        <a href="./subject.html">SUBJECT<span class="jp">対応単元</span></a>
+        <a href="./index.html#member">MEMBER<span class="jp">メンバー</span></a>
+        <a href="./blog.html">BLOG<span class="jp">ブログ</span></a>
+        <a href="./index.html#contact">CONTACT<span class="jp">お問い合わせ</span></a>
+      </nav>
+
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+        <span class="sr">メニューを開く</span>
+      </button>
+    </header>
+
+    <main>
+      <section class="phead">
+        <span class="watermark" aria-hidden="true">BLOG</span>
+        <div class="wrap phead-in">
+          <p class="crumbs">
+            <a href="./index.html">ホーム</a>
+            <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+            <span>ブログ</span>
+          </p>
+          <h1 class="htitle">開発の様子を、書いていきます。</h1>
+          <p class="body soft">
+            作りながら考えたことや、リリースに関するお知らせを載せています。
+          </p>
+        </div>
+      </section>
+
+      <section class="band" style="padding-top: 0">
+        <div class="wrap">
+          <!-- 絞り込みのボタンは js/blog.js が posts.json のカテゴリから作る -->
+          <div class="filters" id="filters" role="group" aria-label="カテゴリで絞り込む"></div>
+
+          <!-- 記事の一覧も js/blog.js が差し込む。こちらは縦に積む -->
+          <div class="jgrid" id="post-list">
+            <p class="state">記事を読み込んでいます。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <div class="foot-in">
+          <div class="foot-brand">
+            <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+            <p>
+              NajoshiteAI は、AI の生徒に教えることで「わかったつもり」に気づくための学習アプリです。2027年春リリース予定。
+            </p>
+          </div>
+
+          <nav class="foot-nav" aria-label="足元の案内">
+            <a href="./about.html">NajoshiteAI とは</a>
+            <a href="./index.html#member">メンバー</a>
+            <a href="./about.html#steps">使い方</a>
+            <a href="./blog.html">ブログ</a>
+            <a href="./about.html#map">理解度マップ</a>
+            <a href="./index.html#contact">お問い合わせ</a>
+            <a href="./subject.html">対応単元</a>
+            <a
+              href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=XYP-cpVeEkWK4KezivJfyKjxvWNReixEqgz9Q2xcDE5UNkhKMU5BR0paVEQyRFZMSUhQSkswWVRQOC4u&amp;route=shorturl"
+              target="_blank"
+              rel="noopener"
+              >アンケート</a
+            >
+          </nav>
+        </div>
+
+        <p class="copy">&copy; 2026 NajoshiteAI</p>
+      </div>
+    </footer>
+
+    <script src="./js/main.js?v=5" defer></script>
+    <script src="./js/blog.js?v=5" defer></script>
+  </body>
+</html>

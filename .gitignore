@@ -1,0 +1,5 @@
+# 公開しないもの
+.vercel
+.claude
+.DS_Store
+Thumbs.db

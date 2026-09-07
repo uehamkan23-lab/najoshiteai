@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NajoshiteAI｜教えるほどに、わからないところが見えてくる。</title>
+    <meta
+      name="description"
+      content="NajoshiteAI は、AI の生徒「なじみ」に勉強を教える学習アプリです。なじみはわざと勘違いをしたまま質問をしてきます。それを正せるかどうかで、ご自身の理解が試されます。2027年春リリース予定。"
+    />
+    <meta name="theme-color" content="#f7f3ea" />
+
+    <meta property="og:title" content="NajoshiteAI" />
+    <meta
+      property="og:description"
+      content="AI の生徒に勉強を教える学習アプリ。「わかったつもり」に気づくための道具です。"
+    />
+    <meta property="og:url" content="https://uehamkan23-lab.github.io/najoshiteai/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://uehamkan23-lab.github.io/najoshiteai/assets/01-home.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      // 描画より前に実行する。動きを減らす設定の人には付けない
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.className += " js";
+      }
+    </script>
+
+    <link rel="icon" href="./favicon.png" type="image/png" />
+    <link rel="stylesheet" href="./css/style.css?v=5" />
+  </head>
+
+  <body>
+    <!--
+      記号は1か所にまとめて置き、<use> で呼び出す。
+      同じ絵を何度も書かずに済み、線の太さや色も一括で揃う。
+      矢印・本・封筒は Hugeicons（MIT）。
+      それ以外はこのサイト用に引いたもの。
+    -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="i-arrow" viewBox="0 0 24 24" fill="none">
+        <path d="M9 6C9 6 15 10.4189 15 12C15 13.5812 9 18 9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+      <symbol id="i-book" viewBox="0 0 24 24" fill="none">
+        <path d="M15.5 7H8.5M12.499 11H8.49902" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+        <path d="M20 22H6C4.89543 22 4 21.1046 4 20M4 20C4 18.8954 4.89543 18 6 18H20V6C20 4.11438 20 3.17157 19.4142 2.58579C18.8284 2 17.8856 2 16 2H10C7.17157 2 5.75736 2 4.87868 2.87868C4 3.75736 4 5.17157 4 8V20Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+        <path d="M19.5 18C19.5 18 18.5 18.7628 18.5 20C18.5 21.2372 19.5 22 19.5 22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24" fill="none">
+        <path d="M2 6L8.91302 9.91697C11.4616 11.361 12.5384 11.361 15.087 9.91697L22 6" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5" />
+        <path d="M2.01577 13.4756C2.08114 16.5412 2.11383 18.0739 3.24496 19.2094C4.37608 20.3448 5.95033 20.3843 9.09883 20.4634C11.0393 20.5122 12.9607 20.5122 14.9012 20.4634C18.0497 20.3843 19.6239 20.3448 20.7551 19.2094C21.8862 18.0739 21.9189 16.5412 21.9842 13.4756C22.0053 12.4899 22.0053 11.5101 21.9842 10.5244C21.9189 7.45886 21.8862 5.92609 20.7551 4.79066C19.6239 3.65523 18.0497 3.61568 14.9012 3.53657C12.9607 3.48781 11.0393 3.48781 9.09882 3.53656C5.95033 3.61566 4.37608 3.65521 3.24495 4.79065C2.11382 5.92608 2.08114 7.45885 2.01576 10.5244C1.99474 11.5101 1.99475 12.4899 2.01577 13.4756Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+        <path d="M12 7V12.4L15.4 14.4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+      <symbol id="i-external" viewBox="0 0 24 24" fill="none">
+        <path d="M14 4H20V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+        <path d="M20 4L11.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+        <path d="M18 14.5V18C18 19.1 17.1 20 16 20H6C4.9 20 4 19.1 4 18V8C4 6.9 4.9 6 6 6H9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+      </symbol>
+    </svg>
+
+    <header class="bar">
+      <a class="brand" href="./index.html">
+        <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+      </a>
+
+      <nav class="nav" id="nav" aria-label="サイト内の案内">
+        <a href="./about.html">ABOUT<span class="jp">NajoshiteAI とは</span></a>
+        <a href="./subject.html">SUBJECT<span class="jp">対応単元</span></a>
+        <a href="./index.html#member">MEMBER<span class="jp">メンバー</span></a>
+        <a href="./blog.html">BLOG<span class="jp">ブログ</span></a>
+        <a href="./index.html#contact">CONTACT<span class="jp">お問い合わせ</span></a>
+      </nav>
+
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+        <span class="sr">メニューを開く</span>
+      </button>
+    </header>
+
+    <main>
+      <!-- ============================================================
+           ヒーロー
+           ============================================================ -->
+      <section class="hero">
+        <div class="wrap hero-in">
+          <div class="hero-copy">
+            <!-- 縦書きなので、改行の位置がそのまま列の切れ目になる -->
+            <h1 data-reveal>
+              教えるほどに、<br />
+              わからない<br />
+              ところが、<br />
+              見えてくる。
+            </h1>
+            <p class="hero-side" data-reveal data-delay="1">
+              NajoshiteAI は、AI の生徒「なじみ」に<br />
+              勉強を教える学習アプリです。<br />
+              なじみは、わざと勘違いをしたまま<br />
+              質問をしてきます。
+            </p>
+          </div>
+
+          <div class="hero-figure" data-reveal data-delay="2">
+            <img
+              src="./assets/なじみ背景透過T.png"
+              alt="白衣を着た AI の生徒「なじみ」。両手を上げて困った顔をしている"
+              width="719"
+              height="911"
+              loading="eager"
+            />
+          </div>
+        </div>
+
+        <div class="wrap hero-foot" data-reveal data-delay="3">
+          <span class="hero-tag">
+            <svg class="ic" aria-hidden="true"><use href="#i-clock" /></svg>
+            2027年春 リリース予定
+          </span>
+          <span class="hero-tag">
+            <svg class="ic" aria-hidden="true"><use href="#i-book" /></svg>
+            中学・高校・大学 54単元に対応
+          </span>
+          <a class="btn ghost" href="./about.html">
+            NajoshiteAI について
+            <span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+          </a>
+        </div>
+      </section>
+
+      <svg class="curve" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 C 380 0 1060 0 1440 60 Z" fill="currentColor" />
+      </svg>
+
+      <!-- ============================================================
+           NajoshiteAI とは
+           ------------------------------------------------------------
+           ここでは要点だけ。使い方・理解度マップは about.html、
+           単元の内訳は subject.html に置いてある。
+           ============================================================ -->
+      <section class="band paper" id="about">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <span class="watermark" aria-hidden="true">ABOUT</span>
+            <h2 class="vtitle">
+              解けることと、<br />
+              説明できることは、<br />
+              違います。
+            </h2>
+            <p class="sec-lead">
+              問題は解けるのに、「なぜそうするのですか」と聞かれると止まってしまう。NajoshiteAI
+              は、教える側にまわることで、その差をご自身で見つけるための道具です。
+            </p>
+            <img
+              class="head-figure"
+              src="./assets/なじみ1.png"
+              alt=""
+              width="500"
+              height="800"
+              loading="lazy"
+            />
+          </div>
+
+          <div class="split">
+            <div class="split-text" data-reveal>
+              <ul class="grades">
+                <li><b>15</b>中学</li>
+                <li><b>28</b>高校</li>
+                <li><b>11</b>大学・専攻科</li>
+              </ul>
+
+              <p class="btn-row">
+                <a class="btn" href="./about.html">
+                  使い方を見る
+                  <span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+                </a>
+                <a class="btn ghost" href="./subject.html">
+                  対応単元を見る
+                  <span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+                </a>
+              </p>
+            </div>
+
+            <img
+              class="shot"
+              data-reveal
+              data-delay="1"
+              src="./assets/01-home.png"
+              alt="NajoshiteAI のホーム画面。なじみが「寒い日にセーターを着ると暖かいのは、服が暖めてくれているということ？」と質問している"
+              width="780"
+              height="1388"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      <svg class="curve to-ground" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 C 380 0 1060 0 1440 60 Z" fill="currentColor" />
+      </svg>
+
+      <!-- ============================================================
+           メンバー
+           ------------------------------------------------------------
+           ここでは写真と名前だけ。押すと紹介ページへ移る。
+           写真は一枚目と二枚目を重ねてあり、JS が数秒ごとに入れ替える。
+           ============================================================ -->
+      <section class="band" id="member">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <span class="watermark" aria-hidden="true">MEMBER</span>
+            <h2 class="vtitle">
+              二人で<br />
+              作っています。
+            </h2>
+            <p class="sec-lead">
+              仙台高等専門学校の学生二人で、NajoshiteAI を開発しています。写真を選んでいただくと、それぞれの紹介ページへ移ります。
+            </p>
+          </div>
+
+          <div class="members">
+            <a class="mcard" href="./member-uehara.html" data-reveal>
+              <div class="mcard-photo" data-swap>
+                <img
+                  class="front"
+                  src="./assets/上原貫太1.jpg"
+                  alt="上原貫太"
+                  width="592"
+                  height="740"
+                  loading="lazy"
+                />
+                <img
+                  class="back"
+                  src="./assets/上原貫太2.jpg"
+                  alt=""
+                  width="360"
+                  height="466"
+                  loading="lazy"
+                />
+                <span class="mcard-name">
+                  <span class="jp">上原 貫太</span>
+                  <span class="en">Kanta Uehara</span>
+                </span>
+              </div>
+              <span class="mcard-more">
+                紹介を見る
+                <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+              </span>
+            </a>
+
+            <a class="mcard" href="./member-kobayashi.html" data-reveal data-delay="1">
+              <div class="mcard-photo" data-swap>
+                <img
+                  class="front"
+                  src="./assets/小林壮志1.jpg"
+                  alt="小林壮志"
+                  width="539"
+                  height="659"
+                  loading="lazy"
+                />
+                <img
+                  class="back"
+                  src="./assets/小林壮志2.jpg"
+                  alt=""
+                  width="737"
+                  height="913"
+                  loading="lazy"
+                />
+                <span class="mcard-name">
+                  <span class="jp">小林 壮志</span>
+                  <span class="en">Soshi Kobayashi</span>
+                </span>
+              </div>
+              <span class="mcard-more">
+                紹介を見る
+                <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <svg class="curve" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 C 380 0 1060 0 1440 60 Z" fill="currentColor" />
+      </svg>
+
+      <!-- ============================================================
+           ブログ（最新の記事）
+           ============================================================ -->
+      <section class="band paper" id="blog">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <span class="watermark" aria-hidden="true">BLOG</span>
+            <h2 class="vtitle">
+              開発の様子を、<br />
+              書いていきます。
+            </h2>
+            <p class="sec-lead">
+              作りながら考えたことや、リリースに関するお知らせを載せています。
+            </p>
+          </div>
+
+          <!-- js/blog.js が data/posts.json から新しい順に差し込む -->
+          <div class="jrow" id="home-posts">
+            <p class="state">記事を読み込んでいます。</p>
+          </div>
+
+          <!-- 二件以上あるときだけ js/blog.js が出す -->
+          <p class="swipe-hint" id="swipe-hint" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg>
+            横に流すと、ほかの記事も見られます
+          </p>
+
+          <p class="sec-foot" data-reveal>
+            <a class="btn ghost" href="./blog.html">
+              記事をすべて見る
+              <span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <svg class="curve to-ground" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 C 380 0 1060 0 1440 60 Z" fill="currentColor" />
+      </svg>
+
+      <!-- ============================================================
+           お問い合わせ
+           ============================================================ -->
+      <section class="band" id="contact">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <span class="watermark" aria-hidden="true">CONTACT</span>
+            <h2 class="vtitle">
+              ご意見を<br />
+              お聞かせください。
+            </h2>
+            <p class="sec-lead">
+              いいと思ったところも、それは違うと思ったところも、そのままお聞かせいただけますと助かります。
+            </p>
+            <img
+              class="head-figure"
+              src="./assets/なじみ3.png"
+              alt=""
+              width="566"
+              height="800"
+              loading="lazy"
+            />
+          </div>
+
+          <div class="contact-in">
+            <div class="contact-card" data-reveal>
+              <h3>アンケートにこたえる</h3>
+              <p>
+                ここまでお読みいただいた感想を、3分ほどのアンケートでうかがっています。開発の参考にさせていただきます。
+              </p>
+              <a
+                class="btn"
+                href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=XYP-cpVeEkWK4KezivJfyKjxvWNReixEqgz9Q2xcDE5UNkhKMU5BR0paVEQyRFZMSUhQSkswWVRQOC4u&amp;route=shorturl"
+                target="_blank"
+                rel="noopener"
+              >
+                アンケートへ
+                <span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-external" /></svg></span>
+              </a>
+            </div>
+
+            <div class="contact-card" data-reveal data-delay="1">
+              <h3>メールで伝える</h3>
+              <p>
+                「こんな単元がほしい」「ここが使いにくい」といったご意見は、こちらへ直接お送りください。必ず読みます。
+              </p>
+              <a class="linkcard" href="mailto:uehamkan23@gmail.com">
+                <svg class="ic" aria-hidden="true"><use href="#i-mail" /></svg>
+                uehamkan23@gmail.com
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <div class="foot-in">
+          <div class="foot-brand">
+            <img src="./assets/title-removebg-preview.png" alt="NajoshiteAI" width="200" height="115" />
+            <p>
+              NajoshiteAI は、AI の生徒に教えることで「わかったつもり」に気づくための学習アプリです。2027年春リリース予定。
+            </p>
+          </div>
+
+          <nav class="foot-nav" aria-label="足元の案内">
+            <a href="./about.html">NajoshiteAI とは</a>
+            <a href="./index.html#member">メンバー</a>
+            <a href="./about.html#steps">使い方</a>
+            <a href="./blog.html">ブログ</a>
+            <a href="./about.html#map">理解度マップ</a>
+            <a href="./index.html#contact">お問い合わせ</a>
+            <a href="./subject.html">対応単元</a>
+            <a
+              href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=XYP-cpVeEkWK4KezivJfyKjxvWNReixEqgz9Q2xcDE5UNkhKMU5BR0paVEQyRFZMSUhQSkswWVRQOC4u&amp;route=shorturl"
+              target="_blank"
+              rel="noopener"
+              >アンケート</a
+            >
+          </nav>
+        </div>
+
+        <p class="copy">&copy; 2026 NajoshiteAI</p>
+      </div>
+    </footer>
+
+    <script src="./js/main.js?v=5" defer></script>
+    <script src="./js/blog.js?v=5" defer></script>
+  </body>
+</html>
